@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Dict, Set
 import logging
 
+print("START APP")
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
