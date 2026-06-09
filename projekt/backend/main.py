@@ -6,6 +6,7 @@ from typing import Dict, Set
 import logging
 
 print("START APP")
+const port = process.env.PORT || 8000;
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
