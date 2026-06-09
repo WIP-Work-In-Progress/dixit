@@ -6,3 +6,5 @@ numpy
 nltk
 scikit-learn
 uvicorn[standard]
+fastapi
+
