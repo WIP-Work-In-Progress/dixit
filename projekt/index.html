@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dixit AI - Tabletop Card Game</title>
+    <!-- Google Fonts for a Classic Tabletop Feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Game Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Ambient glowing backgrounds -->
+    <div class="stars-background"></div>
+    <div class="glow-effect"></div>
+
+    <!-- START / CONFIGURATION SCREEN -->
+    <main id="setup-screen" class="setup-container active">
+        <div class="logo-area">
+            <h1 class="game-logo">Dixit <span class="logo-ai">AI</span></h1>
+            <p class="tagline">Play against bots driven by neural networks and large language models in a classic tabletop format</p>
+        </div>
+        
+        <div class="setup-card glass-panel">
+            <h2>Game Configuration</h2>
+            
+            <!-- Game Mode Selection Toggle -->
+            <div class="form-group">
+                <label><i class="fa-solid fa-gamepad"></i> Game Mode</label>
+                <div class="mode-selector" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button type="button" id="mode-single-btn" class="btn btn-primary btn-glow active" style="flex: 1;">Single Player</button>
+                    <button type="button" id="mode-multi-btn" class="btn btn-secondary" style="flex: 1;">Play with Friends</button>
+                </div>
+            </div>
+
+            <!-- Single Player Config (visible by default) -->
+            <div id="single-config">
+                <div class="form-group">
+                    <label for="player-name"><i class="fa-solid fa-user"></i> Your Name</label>
+                    <input type="text" id="player-name" value="Player" placeholder="Enter your name...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bot-count"><i class="fa-solid fa-robot"></i> Number of Bots</label>
+                        <select id="bot-count">
+                            <option value="3">3 Bots (4 players)</option>
+                            <option value="4" selected>4 Bots (5 players)</option>
+                            <option value="5">5 Bots (6 players)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="win-condition"><i class="fa-solid fa-trophy"></i> Victory Target</label>
+                        <select id="win-condition">
+                            <option value="score-30" selected>First to 30 points</option>
+                            <option value="rounds-3">3 rounds</option>
+                            <option value="rounds-5">5 rounds</option>
+                            <option value="rounds-10">10 rounds</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="start-game-btn" class="btn btn-primary btn-glow" style="width: 100%;">
+                    Begin Journey <i class="fa-solid fa-play"></i>
+                </button>
+            </div>
+
+            <!-- Multiplayer Config (hidden by default) -->
+            <div id="multi-config" style="display: none;">
+                <div class="multi-actions" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button type="button" id="action-create-btn" class="btn btn-primary btn-glow" style="flex: 1;">Create Room</button>
+                    <button type="button" id="action-join-btn" class="btn btn-secondary" style="flex: 1;">Join Room</button>
+                </div>
+
+                <!-- Create Room Details -->
+                <div id="create-room-config" style="display: none;">
+                    <div class="form-group">
+                        <label for="creator-name"><i class="fa-solid fa-user"></i> Your Name</label>
+                        <input type="text" id="creator-name" value="Host" placeholder="Enter your name...">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="multi-max-players"><i class="fa-solid fa-users"></i> Max Friends</label>
+                            <select id="multi-max-players">
+                                <option value="2">2 Players</option>
+                                <option value="3">3 Players</option>
+                                <option value="4" selected>4 Players</option>
+                                <option value="5">5 Players</option>
+                                <option value="6">6 Players</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="multi-bot-count"><i class="fa-solid fa-robot"></i> Bots to Add</label>
+                            <select id="multi-bot-count">
+                                <option value="0">No Bots</option>
+                                <option value="1">1 Bot</option>
+                                <option value="2" selected>2 Bots</option>
+                                <option value="3">3 Bots</option>
+                                <option value="4">4 Bots</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="multi-win-condition"><i class="fa-solid fa-trophy"></i> Victory Target</label>
+                        <select id="multi-win-condition">
+                            <option value="score-30" selected>First to 30 points</option>
+                            <option value="rounds-3">3 rounds</option>
+                            <option value="rounds-5">5 rounds</option>
+                            <option value="rounds-10">10 rounds</option>
+                        </select>
+                    </div>
+                    <button id="create-room-submit-btn" class="btn btn-primary btn-glow" style="width: 100%;">
+                        Generate Room Code <i class="fa-solid fa-square-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Join Room Details -->
+                <div id="join-room-config" style="display: none;">
+                    <div class="form-group">
+                        <label for="join-player-name"><i class="fa-solid fa-user"></i> Your Name</label>
+                        <input type="text" id="join-player-name" value="Guest" placeholder="Enter your name...">
+                    </div>
+                    <div class="form-group">
+                        <label for="join-room-code"><i class="fa-solid fa-key"></i> Room Code</label>
+                        <input type="text" id="join-room-code" placeholder="Enter 4-letter code..." style="text-transform: uppercase;">
+                    </div>
+                    <button id="join-room-submit-btn" class="btn btn-primary btn-glow" style="width: 100%;">
+                        Enter Room <i class="fa-solid fa-right-to-bracket"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lobby Panel (hidden by default) -->
+            <div id="lobby-config" style="display: none; margin-top: 10px;">
+                <div class="lobby-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px;">
+                    <h3>Lobby Room</h3>
+                    <div class="room-code-badge" style="background: var(--color-primary); color: var(--text-dark); padding: 5px 12px; border-radius: 4px; font-weight: 700; font-family: var(--font-heading); font-size: 1.1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">
+                        Code: <span id="lobby-code-val" style="letter-spacing: 0.05em;">----</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4;">
+                    To play together on this machine, share this code or open another browser tab and join using the room code!
+                </p>
+                <div class="lobby-players-container" style="background: rgba(18, 12, 8, 0.45); border: 1px solid var(--panel-border); border-radius: 6px; padding: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                    <h4 style="margin-bottom: 12px; font-size: 1rem; color: var(--color-primary); font-family: var(--font-heading);">
+                        Joined Players (<span id="lobby-count-val">0</span>/<span id="lobby-max-val">0</span>)
+                    </h4>
+                    <ul id="lobby-players-list" style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Populated dynamically -->
+                    </ul>
+                </div>
+                <div id="lobby-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Inserted dynamically: Start game / Waiting text -->
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-info-card glass-panel">
+            <h3><i class="fa-solid fa-brain"></i> How does the AI work?</h3>
+            <ul>
+                <li><i class="fa-solid fa-circle-check"></i> **Classification (Keras CNN):** Bots analyze the top-3 classes of each card image.</li>
+                <li><i class="fa-solid href-link fa-circle-check"></i> **Captioning (BLIP):** The AI model generates a descriptive caption for the image.</li>
+                <li><i class="fa-solid fa-circle-check"></i> **Embeddings (MiniLM):** Cosine similarity determines the semantic match between card and clue.</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- GAMEPLAY SCREEN -->
+    <main id="game-screen" class="game-container">
+        
+        <!-- GAME HEADER -->
+        <header class="game-header glass-panel">
+            <div class="header-logo">
+                <h1>Dixit <span class="logo-ai">AI</span></h1>
+            </div>
+            
+            <div class="round-indicator">
+                <span id="round-num-label">Round 1</span>
+            </div>
+
+            <div class="storyteller-info-bar">
+                <div class="story-avatar">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </div>
+                <div class="story-text">
+                    <span class="label">Storyteller:</span>
+                    <span id="storyteller-name-label" class="val">-</span>
+                </div>
+            </div>
+
+            <div class="clue-info-bar">
+                <span class="label">Round Clue:</span>
+                <span id="clue-text-label" class="val">Waiting...</span>
+            </div>
+        </header>
+
+        <!-- MAIN GAMEPLAY GRID -->
+        <div class="game-grid">
+            
+            <!-- LEFT PANEL: PLAYERS & SCORES -->
+            <section class="game-sidebar glass-panel">
+                <h2>Players</h2>
+                <div id="players-list" class="players-list">
+                    <!-- Players list will be populated dynamically -->
+                </div>
+            </section>
+
+            <!-- MAIN PANEL: THE TABLE -->
+            <section class="game-board glass-panel">
+                <div class="board-header">
+                    <h2 id="phase-title">Game Phase</h2>
+                    <p id="phase-instruction">Round instruction...</p>
+                </div>
+
+                <!-- Table board with played cards -->
+                <div class="board-table-container">
+                    <div id="board-table" class="board-table empty">
+                        <!-- Cards will be populated dynamically -->
+                        <div class="table-placeholder">
+                            <i class="fa-solid fa-square-minus"></i>
+                            <p>The table is empty. Waiting for cards to be played.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button (e.g. Confirm choice, vote, next round) -->
+                <div class="board-actions">
+                    <button id="confirm-btn" class="btn btn-success btn-glow disabled" disabled>
+                        Confirm Selection <i class="fa-solid fa-check"></i>
+                    </button>
+                </div>
+            </section>
+            
+            <!-- RIGHT PANEL: BOT THOUGHTS (DEBUG PANEL) -->
+            <section class="game-debug glass-panel">
+                <h2><i class="fa-solid fa-microchip"></i> AI Whispers (Thought Log)</h2>
+                <div class="debug-controls">
+                    <label class="switch-container">
+                        <input type="checkbox" id="toggle-thoughts" checked>
+                        <span class="slider"></span>
+                        Show analysis on cards
+                    </label>
+                </div>
+                <div id="debug-log-container" class="debug-log-container">
+                    <div class="debug-welcome">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p>Here you will see classification results and semantic embedding analysis used by the bots to make decisions.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- BOTTOM PANEL: PLAYER HAND -->
+        <footer class="player-hand-container glass-panel">
+            <div class="hand-header">
+                <h2>Your Hand</h2>
+                <span class="hand-hint">Click a card to choose it, or use the zoom icon to inspect details</span>
+            </div>
+            <div id="player-hand" class="player-hand">
+                <!-- Player's cards populated dynamically -->
+            </div>
+        </footer>
+
+        <!-- CHRONICLE (GAME LOGS) -->
+        <section class="game-logs-section glass-panel">
+            <h3><i class="fa-solid fa-list-ul"></i> Chronicle (Game Logs)</h3>
+            <div id="game-logs" class="game-logs">
+                <p class="log-entry system"><span class="time">[12:00]</span> Chronicle initialized. Press Begin Journey to start.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- STORYTELLER CLUE INPUT MODAL -->
+    <div id="clue-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <h2><i class="fa-solid fa-feather-pointed"></i> Speak the Clue</h2>
+            <p>You have selected a card. Now, speak a word, phrase, or sentence that evokes its essence. The bots will try to guess your card based on this clue!</p>
+            
+            <div class="modal-image-preview">
+                <img id="modal-selected-card-img" src="" alt="Selected card">
+            </div>
+
+            <div class="form-group">
+                <label for="clue-input">Clue / Phrase:</label>
+                <input type="text" id="clue-input" placeholder="Enter your clue (e.g. mystery, night, friendship)..." autofocus>
+                
+                <!-- Recommended words from AI Classification -->
+                <div class="ai-suggestions">
+                    <span class="suggest-label"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Whispers (Suggestions):</span>
+                    <div id="ai-suggestions-list" class="suggestions-list">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="cancel-clue-btn" class="btn btn-secondary">Go Back</button>
+                <button id="submit-clue-btn" class="btn btn-primary">Begin Round</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD ZOOM MODAL -->
+    <div id="zoom-modal" class="modal-overlay">
+        <div class="modal-content zoom-content glass-panel">
+            <span class="close-btn" id="close-zoom-btn">&times;</span>
+            <div class="zoom-body">
+                <div class="zoom-image-area">
+                    <img id="zoom-img" src="" alt="Card zoom view">
+                </div>
+                <div class="zoom-info-area">
+                    <h3>Card Inscriptions</h3>
+                    
+                    <div class="zoom-meta-box">
+                        <span class="meta-title"><i class="fa-solid fa-quote-left"></i> BLIP Description (AI Caption):</span>
+                        <p id="zoom-caption" class="meta-val">Loading description...</p>
+                    </div>
+
+                    <div class="zoom-meta-box">
+                        <span class="meta-title"><i class="fa-solid fa-tags"></i> Keras Class Tags:</span>
+                        <div id="zoom-classes" class="classes-pills">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="zoom-match-box" id="zoom-match-container" style="display: none;">
+                        <span class="meta-title"><i class="fa-solid fa-chart-simple"></i> Clue Resonance Score:</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="zoom-match-bar" style="width: 0%;">0%</div>
+                        </div>
+                        <p id="zoom-match-details" class="meta-subval">Class Resonance: 0% | Semantic Resonance: 0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOURNEY'S END MODAL -->
+    <div id="endgame-modal" class="modal-overlay">
+        <div class="modal-content glass-panel text-center">
+            <h1 class="victory-title"><i class="fa-solid fa-crown text-gold"></i> Journey's End!</h1>
+            <p id="endgame-message">A wanderer has reached the target score. Behold the final standings:</p>
+
+            <div class="leaderboard-container">
+                <table class="leaderboard-table" id="endgame-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Leaderboard entries populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="restart-game-btn" class="btn btn-primary btn-glow btn-lg">
+                New Journey <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Load JS databases first to prevent CORS issues on local filesystem execution -->
+    <script src="cards_metadata.js"></script>
+    <script src="vocab_embeddings.js"></script>
+    <script>
+        // Set BACKEND_URL to your deployed backend (e.g. https://your-backend.example.com)
+        // When running locally with the bundled FastAPI server use: window.BACKEND_URL = 'http://localhost:8000'
+        // For GitHub Pages deployment: set the BACKEND_URL to your backend's public HTTPS endpoint.
+        // Example production usage in CI/CD: replace this line with the production backend endpoint or set it by the hosting environment.
+        (function(){
+            // If already set by environment/CI, keep it. Otherwise try to infer when served from GH-Pages domain.
+            if (!window.BACKEND_URL) {
+                // If running on localhost, leave blank (developer should set to http://localhost:8000)
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    window.BACKEND_URL = 'http://localhost:8000';
+                } else {
+                    // Do not auto-default to any third-party backend. Leave empty and document in README how to configure.
+                    window.BACKEND_URL = window.BACKEND_URL || '';
+                }
+            }
+            console.info('BACKEND_URL=', window.BACKEND_URL || '(not set - configure README_DEPLOY.md)');
+        })();
+    </script>
+    <!-- Main game engine -->
+    <script type="module" src="game.js"></script>
+</body>
+</html>

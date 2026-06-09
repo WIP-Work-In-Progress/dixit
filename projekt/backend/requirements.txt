@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+numpy
+# Real model dependencies (required for production inference)
+tensorflow-cpu==2.12.0
+torch==2.2.0
+transformers==4.44.0
+sentence-transformers==2.2.2

@@ -1,0 +1,7 @@
+tensorflow
+torch
+transformers
+Pillow
+numpy
+nltk
+scikit-learn

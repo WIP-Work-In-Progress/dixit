@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: dixit-backend
+    env: python
+    plan: free
+    repo: <replace-with-your-github-repo>
+    branch: main
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: "10000" # Render will override this; placeholder
+      - key: ALLOWED_ORIGINS
+        value: "https://<your-gh-username>.github.io" # Replace with your GH Pages domain
+      - key: MODEL_PATH
+        value: "/home/render/project/image_classification_model.h5" # path inside render instance if you include model in repo
+      - key: MAX_UPLOAD_SIZE
+        value: "5242880"
+    mounts: []
