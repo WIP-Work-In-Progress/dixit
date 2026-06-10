@@ -371,25 +371,17 @@
     </div>
 
     <!-- Load JS databases first to prevent CORS issues on local filesystem execution -->
-    <script src="cards_metadata.js"></script>
-    <script src="vocab_embeddings.js"></script>
     <script>
-        // Set BACKEND_URL to your deployed backend (e.g. https://your-backend.example.com)
-        // When running locally with the bundled FastAPI server use: window.BACKEND_URL = 'http://localhost:8000'
-        // For GitHub Pages deployment: set the BACKEND_URL to your backend's public HTTPS endpoint.
-        // Example production usage in CI/CD: replace this line with the production backend endpoint or set it by the hosting environment.
         (function(){
-            // If already set by environment/CI, keep it. Otherwise try to infer when served from GH-Pages domain.
-            if (!window.BACKEND_URL) {
-                // If running on localhost, leave blank (developer should set to http://localhost:8000)
-                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                    window.BACKEND_URL = 'http://localhost:8000';
-                } else {
-                    // Do not auto-default to any third-party backend. Leave empty and document in README how to configure.
-                    window.BACKEND_URL = window.BACKEND_URL || '';
-                }
+            // If no backend configured (local offline mode), load precomputed artifacts for CORS-free file:// testing
+            const backend = window.BACKEND_URL || '';
+            if (!backend || backend.trim() === '') {
+                const s1 = document.createElement('script'); s1.src = 'cards_metadata.js'; s1.defer = true; document.head.appendChild(s1);
+                const s2 = document.createElement('script'); s2.src = 'vocab_embeddings.js'; s2.defer = true; document.head.appendChild(s2);
+                console.info('Loaded local artifact scripts: cards_metadata.js, vocab_embeddings.js');
+            } else {
+                console.info('BACKEND_URL present - skipping precomputed artifact scripts to enforce backend-backed mode');
             }
-            console.info('BACKEND_URL=', window.BACKEND_URL || '(not set - configure README_DEPLOY.md)');
         })();
     </script>
     <!-- Main game engine -->

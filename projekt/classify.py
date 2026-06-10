@@ -8,24 +8,29 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.preprocessing import image
 
+# Define default data directories but do not exit on import
 train_dir = os.path.join('.', 'data', 'train')
 test_dir = os.path.join('.', 'data', 'test')
 
-for dir_path, name in zip([train_dir, test_dir], ["train", "test"]):
-    if not os.path.isdir(dir_path):
-        print(f"Błąd: Katalog danych '{dir_path}' ({name}) nie istnieje. Utwórz wymagane katalogi i dodaj dane przed uruchomieniem programu.")
-        sys.exit(1)
-
 img_width, img_height = 150, 150
 
-def get_class_labels(train_dir):
-    return sorted([d for d in os.listdir(train_dir) if os.path.isdir(os.path.join(train_dir, d))])
+def get_class_labels(train_dir_path):
+    """Return sorted class label folder names from train_dir_path. Raises if directory missing or empty."""
+    if not os.path.isdir(train_dir_path):
+        raise FileNotFoundError(f"Train directory not found: {train_dir_path}. Create training data or skip calling training/classify functions that rely on it.")
+    labels = sorted([d for d in os.listdir(train_dir_path) if os.path.isdir(os.path.join(train_dir_path, d))])
+    if not labels:
+        raise ValueError(f"No class subdirectories found in train directory: {train_dir_path}")
+    return labels
 
-def classify_image_top_k(img_path, k=3):
-    model = tf.keras.models.load_model('image_classification_model.h5')
-    train_dir = os.path.join('.', 'data', 'train')
+
+def classify_image_top_k(img_path, k=3, model_path='image_classification_model.h5'):
+    """Load model from model_path and classify image. Raises descriptive errors if model or labels are missing."""
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}. Please provide a trained model and set MODEL_PATH accordingly.")
+    model = tf.keras.models.load_model(model_path)
     class_labels = get_class_labels(train_dir)
-    img = image.load_img(img_path, target_size=(150, 150))
+    img = image.load_img(img_path, target_size=(img_width, img_height))
     x = image.img_to_array(img)
     x = x / 255.0
     x = np.expand_dims(x, axis=0)
@@ -33,11 +38,19 @@ def classify_image_top_k(img_path, k=3):
     top_indices = np.argsort(preds)[::-1][:k]
     return [(class_labels[i], float(preds[i])) for i in top_indices]
 
+
 def classify_image(img_path):
     top1 = classify_image_top_k(img_path, k=1)
-    return top1[0][0] 
+    return top1[0][0]
+
 
 if __name__ == "__main__":
+    # When running as a script, validate required data directories exist and proceed with training.
+    for dir_path, name in zip([train_dir, test_dir], ["train", "test"]):
+        if not os.path.isdir(dir_path):
+            print(f"Błąd: Katalog danych '{dir_path}' ({name}) nie istnieje. Utwórz wymagane katalogi i dodaj dane przed uruchomieniem programu.")
+            sys.exit(1)
+
     train_datagen = ImageDataGenerator(rescale=1./255)
 
     train_generator = train_datagen.flow_from_directory(
